@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <el-row :gutter="20">
+        <el-col :span="12" :offset="6">
+            <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
+                     class="demo-ruleForm">
+                <el-divider content-position="right">基本信息</el-divider>
+                <el-form-item label="用户名" prop="name">
+                    <el-input v-model="ruleForm.name" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                    <el-input type="email" v-model="ruleForm.email" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="手机号码" prop="phone">
+                    <el-input type="tel" v-model="ruleForm.phone" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                    <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" prop="confirm">
+                    <el-input type="password" v-model="ruleForm.confirm" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-divider content-position="right">密保问题</el-divider>
+                <el-form-item label="问题一" prop="firstQuestion">
+                    <el-select v-model="ruleForm.firstQuestion" style="width:100%">
+                        <el-option
+                                v-for="item in questions"
+                                :key="item.id"
+                                :label="item.question"
+                                :value="item.question">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="答案" prop="firstAnswer">
+                    <el-input v-model="ruleForm.firstAnswer" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="问题二" prop="secondQuestion">
+                    <el-select v-model="ruleForm.secondQuestion" style="width:100%">
+                        <el-option
+                                v-for="item in questions"
+                                :key="item.id"
+                                :label="item.question"
+                                :value="item.question">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="答案" prop="secondAnswer">
+                    <el-input v-model="ruleForm.secondAnswer" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="问题三" prop="thirdQuestion">
+                    <el-select v-model="ruleForm.thirdQuestion" style="width:100%">
+                        <el-option
+                                v-for="item in questions"
+                                :key="item.id"
+                                :label="item.question"
+                                :value="item.question">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="答案" prop="thirdAnswer">
+                    <el-input v-model="ruleForm.thirdAnswer" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
+                    <el-button @click="resetForm('ruleForm')">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </el-col>
+    </el-row>
+</div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            var validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.confirm !== '') {
+                        this.$refs.ruleForm.validateField('confirm');
+                    }
+                    callback();
+                }
+            };
+            var validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            var validateFirstQuestion = (rule, value, callback) => {
+                if (value === this.ruleForm.secondQuestion
+                    || value === this.ruleForm.thirdQuestion
+                ) {
+                    callback(new Error('问题重复'))
+                }
+                callback();
+            };
+            var validateSecondQuestion = (rule, value, callback) => {
+                if (value === this.ruleForm.firstQuestion
+                    || value === this.ruleForm.thirdQuestion
+                ) {
+                    callback(new Error('问题重复'))
+                }
+                callback();
+            };
+            return {
+                ruleForm: {
+                    name: '',
+                    password: '',
+                    confirm: '',
+                    email: '',
+                    phone: '',
+                    firstQuestion: '',
+                    firstAnswer: '',
+                    secondQuestion: '',
+                    secondAnswer: '',
+                    thirdQuestion: '',
+                    thirdAnswer: ''
+                },
+                rules: {
+                    name: [
+                        {required: true, message: '请填写用户名'},
+                        {pattern: /^[a-zA-Z0-9_-]{3,16}$/, message: '3-16位，字母数字下划线'},
+                    ],
+                    email: [
+                        {required: true, message: '请填写邮箱地址'},
+                        {pattern: /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/, message: '格式不正确'}
+                    ],
+                    phone: [
+                        {required: true, message: '请填写电话号码'},
+                        {pattern: /^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$/, message: '格式不正确'},
+                    ],
+                    password: [
+                        {required: true, message: '请填写密码'},
+                        {validator: validatePass},
+                        {pattern: /^(?=.*[a-z])(?=.*\d)[^]{6,16}$/, message: '6-16位，必须包含字母和数字'}
+                    ],
+                    confirm: [
+                        {validator: validatePass2}
+                    ],
+                    firstQuestion: [
+                        {required: true, message: '请选择问题'},
+                        {validator: validateFirstQuestion},
+                    ],
+                    secondQuestion: [
+                        {required: true, message: '请选择问题'},
+                        {validator: validateSecondQuestion},
+                    ],
+                    thirdQuestion: [
+                        {required: true, message: '请选择问题'},
+                    ],
+                    firstAnswer: [
+                        {required: true, message: '请填写答案'},
+                    ],
+                    secondAnswer: [
+                        {required: true, message: '请填写答案'},
+                    ],
+                    thirdAnswer: [
+                        {required: true, message: '请填写答案'},
+                    ]
+                },
+                questions: [],
+            };
+        },
+        mounted() {
+            axios.get('/cas/get/questions')
+                .then(response => {
+                    this.questions = response.data;
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+
+        },
+        methods: {
+            submitForm(formName) {
+                console.log(this.ruleForm);
+                this.$refs[formName].validate((valid) => {
+                    console.log(valid);
+                    if (valid) {
+                        axios.post('/cas/user/register', this.ruleForm)
+                            .then(response => {
+                                if (response.data === 'success') {
+                                    this.$message.success('恭喜您注册成功, 2秒之后跳转登录');
+                                    setTimeout(() => {
+                                        window.location.href = '/cas/login';
+                                    }, 2000);
+                                } else {
+                                    this.$message.error(response.data);
+                                }
+
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                this.$message.error(response.data);
+                            });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        }
+    })
+</script>
+</html>
