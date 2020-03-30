@@ -93,7 +93,6 @@
         <AsyncLogger name="org.ldaptive" level="warn" />
         <AsyncLogger name="com.hazelcast" level="warn" />
         <AsyncLogger name="org.apereo.spring" level="warn" />
-        <AsyncLogger name="xyz.bchen.cas" level="info" />
 
         <!-- Log perf stats only to perfStats.log -->
         <AsyncLogger name="perfStatsLogger" level="info" additivity="false" includeLocation="true">

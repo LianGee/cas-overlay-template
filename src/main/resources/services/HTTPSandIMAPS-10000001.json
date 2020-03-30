@@ -1,0 +1,20 @@
+{
+  "@class": "org.apereo.cas.services.RegexRegisteredService",
+  "serviceId": "^(https|http|imaps)://.*",
+  "name": "JSON Server",
+  "id": 10000001,
+  "description": "This service definition authorizes all application urls that support HTTPS and HTTP and IMAPS protocols.",
+  "evaluationOrder": 10000,
+  "attributeReleasePolicy": {
+    "@class": "org.apereo.cas.services.ReturnAllAttributeReleasePolicy",
+    "principalAttributesRepository": {
+      "@class": "org.apereo.cas.authentication.principal.cache.CachingPrincipalAttributesRepository",
+      "mergingStrategy": "REPLACE"
+    }
+  },
+  "accessStrategy": {
+    "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+    "enabled": true,
+    "ssoEnabled": true
+  }
+}
